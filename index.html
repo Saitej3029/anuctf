@@ -1,63 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Cyber Sorcerer CTF</title>
+  <meta charset="UTF-8" />
+  <title>Cyber Sorcerer</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 20px;
-    }
     textarea {
       width: 100%;
-      height: 150px;
-      font-family: monospace;
-      font-size: 14px;
+      height: 200px;
     }
     iframe {
       width: 100%;
-      height: 200px;
-      border: 2px solid black;
-      margin-top: 10px;
-    }
-    button {
-      margin-top: 10px;
-    }
-    h1 {
-      color: #222;
+      height: 250px;
+      border: 1px solid black;
     }
   </style>
 </head>
 <body>
-
   <h1>Welcome, Cyber Sorcerer 🧙‍♂️</h1>
   <p>Write your markdown below and preview it securely inside the Shadow Realm.</p>
 
-  <textarea id="markdown" placeholder="Enter your SVG/XSS payload here..."></textarea>
-  <br>
+  <textarea id="markdown"></textarea>
+  <br />
   <button onclick="preview()">Preview</button>
 
   <h2>Shadow Realm (sandboxed)</h2>
-  <iframe id="sandbox" sandbox="allow-scripts"></iframe>
+  <iframe id="sandbox" src="sandbox.html" sandbox="allow-scripts allow-same-origin"></iframe>
 
-  <p>🏁 FLAG: <span id="flag">...</span></p>
+  <p>⚑ FLAG: <span id="flag">...</span></p>
 
   <script>
-    const flag = "FLAG{sandbox_escape_success}";
-
+    // Send code to sandbox
     function preview() {
-      const markdown = document.getElementById("markdown").value;
-      const blob = new Blob([markdown], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      document.getElementById("sandbox").src = url;
+      const content = document.getElementById("markdown").value;
+      const sandbox = document.getElementById("sandbox");
+      sandbox.contentWindow.postMessage(content, "*");
     }
 
+    // Receive messages from sandbox
     window.addEventListener("message", (event) => {
       if (event.data === "give_flag") {
-        document.getElementById("flag").textContent = flag;
+        // 🏁 Replace this with actual flag in CTF
+        const flag = "CTF{svg_xss_to_shadow_realm}";
+        event.source.postMessage(flag, "*");
+      } else if (event.data.startsWith("CTF{")) {
+        document.getElementById("flag").innerText = event.data;
       }
     });
   </script>
-
 </body>
 </html>
