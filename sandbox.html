@@ -2,9 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Sandbox Realm</title>
+  <title>Shadow Realm</title>
 </head>
 <body>
-  <!-- Content will be dynamically injected here by the Blob URL in index.html -->
+  <script>
+    window.addEventListener("message", (event) => {
+      try {
+        document.body.innerHTML = event.data;
+      } catch (e) {
+        document.body.innerHTML = "<p>Error rendering content.</p>";
+      }
+    });
+  </script>
 </body>
 </html>
