@@ -1,17 +1,10 @@
-<!-- sandbox.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Sandbox Preview</title>
+  <meta charset="UTF-8">
+  <title>Sandbox Realm</title>
 </head>
 <body>
-  <div id="output">[Your content will appear here]</div>
-
-  <script>
-    window.addEventListener("message", function(event) {
-      // UNSAFE render, vulnerable to HTML injection
-      document.getElementById("output").innerHTML = event.data;
-    });
-  </script>
+  <!-- Content will be dynamically injected here by the Blob URL in index.html -->
 </body>
 </html>
