@@ -1,17 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cyber Sorcerer</title>
   <style>
     textarea {
       width: 100%;
       height: 200px;
+      resize: vertical;
+      font-family: monospace;
+      margin-bottom: 10px;
     }
     iframe {
       width: 100%;
-      height: 250px;
-      border: 1px solid black;
+      height: 300px;
+      border: 1px solid #333;
+      margin-top: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    body {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      font-family: Arial, sans-serif;
     }
   </style>
 </head>
@@ -19,9 +34,10 @@
   <h1>Welcome, Cyber Sorcerer 🧙‍♂️</h1>
   <p>Write your markdown below and preview it securely inside the Shadow Realm.</p>
 
-  <textarea id="markdown"></textarea>
-  <br />
-  <button onclick="preview()">Preview</button>
+  <label for="markdown" style="display: block; margin-bottom: 5px;">Input:</label>
+  <textarea id="markdown" placeholder="Enter content here..."></textarea>
+  <br>
+  <button id="previewBtn">Preview</button>
 
   <h2>Shadow Realm (sandboxed)</h2>
   <iframe id="sandbox" src="sandbox.html" sandbox="allow-scripts allow-same-origin"></iframe>
@@ -29,23 +45,30 @@
   <p>⚑ FLAG: <span id="flag">...</span></p>
 
   <script>
-    // Send code to sandbox
-    function preview() {
-      const content = document.getElementById("markdown").value;
-      const sandbox = document.getElementById("sandbox");
-      sandbox.contentWindow.postMessage(content, "*");
+    // Send content to sandbox iframe
+    function previewContent() {
+      const content = document.getElementById('markdown').value;
+      const sandbox = document.getElementById('sandbox');
+      if (sandbox.contentWindow) {
+        sandbox.contentWindow.postMessage(content, '*'); // Wildcard for CTF
+      } else {
+        console.error('Sandbox iframe not ready.');
+      }
     }
 
-    // Receive messages from sandbox
-    window.addEventListener("message", (event) => {
-      if (event.data === "give_flag") {
-        // 🏁 Replace this with actual flag in CTF
-        const flag = "CTF{svg_xss_to_shadow_realm}";
-        event.source.postMessage(flag, "*");
-      } else if (event.data.startsWith("CTF{")) {
-        document.getElementById("flag").innerText = event.data;
+    // Handle messages from sandbox
+    window.addEventListener('message', (event) => {
+      if (event.data === 'give_flag') {
+        // Updated flag
+        const flag = 'YOU_GOT_THE_JACKPOT';
+        event.source.postMessage(flag, '*'); // Wildcard for CTF
+      } else if (typeof event.data === 'string' && event.data.startsWith('YOU_')) {
+        document.getElementById('flag').textContent = event.data;
       }
     });
+
+    // Attach event listener to button
+    document.getElementById('previewBtn').addEventListener('click', previewContent);
   </script>
 </body>
 </html>
