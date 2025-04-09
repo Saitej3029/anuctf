@@ -1,27 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Sandbox</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+    }
+    #preview {
+      border: 1px dashed #ccc;
+      padding: 10px;
+      min-height: 50px;
+    }
+  </style>
 </head>
 <body>
+  <div id="preview"></div>
+
   <script>
-    // Listen for code injection
-    window.addEventListener("message", (event) => {
+    // Listen for content from parent
+    window.addEventListener('message', (event) => {
       const content = event.data;
+      if (typeof content === 'string') {
+        // Inject content into DOM (vulnerable to XSS for CTF)
+        const div = document.createElement('div');
+        div.innerHTML = content;
+        document.getElementById('preview').appendChild(div);
+      }
+    });
 
-      // Create container for execution
-      const div = document.createElement("div");
-      div.innerHTML = content;
-      document.body.appendChild(div);
-
-      // Listen for flag reply
-      window.addEventListener("message", (msg) => {
-        if (msg.data.startsWith("CTF{")) {
-          // Forward to top level
-          window.parent.postMessage(msg.data, "*");
-        }
-      });
+    // Listen for flag response from parent
+    window.addEventListener('message', (event) => {
+      if (typeof event.data === 'string' && event.data.startsWith('YOU_')) {
+        // Forward flag to parent
+        window.parent.postMessage(event.data, '*');
+      }
     });
   </script>
 </body>
