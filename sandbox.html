@@ -7,11 +7,13 @@
     body {
       font-family: Arial, sans-serif;
       padding: 10px;
+      margin: 0;
     }
     #preview {
       border: 1px dashed #ccc;
       padding: 10px;
       min-height: 50px;
+      word-wrap: break-word;
     }
   </style>
 </head>
@@ -19,24 +21,43 @@
   <div id="preview"></div>
 
   <script>
-    // Listen for content from parent
-    window.addEventListener('message', (event) => {
-      const content = event.data;
-      if (typeof content === 'string') {
-        // Inject content into DOM (vulnerable to XSS for CTF)
-        const div = document.createElement('div');
-        div.innerHTML = content;
-        document.getElementById('preview').appendChild(div);
-      }
-    });
+    (function() {
+      // DOM elements
+      const preview = document.getElementById('preview');
 
-    // Listen for flag response from parent
-    window.addEventListener('message', (event) => {
-      if (typeof event.data === 'string' && event.data.startsWith('YOU_')) {
-        // Forward flag to parent
-        window.parent.postMessage(event.data, '*');
+      if (!preview) {
+        console.error('Preview div not found.');
+        return;
       }
-    });
+
+      // Handle content from parent
+      window.addEventListener('message', (event) => {
+        const content = event.data;
+        console.log('Sandbox received message:', content);
+
+        if (typeof content === 'string' && content.trim()) {
+          try {
+            const div = document.createElement('div');
+            div.innerHTML = content; // Intentionally vulnerable for CTF
+            preview.appendChild(div);
+            console.log('Content injected into DOM:', content);
+          } catch (e) {
+            console.error('Error injecting content:', e);
+          }
+        }
+      });
+
+      // Handle flag response from parent
+      window.addEventListener('message', (event) => {
+        const data = event.data;
+        if (typeof data === 'string' && data === 'YOU_GOT_THE_JACKPOT') {
+          console.log('Forwarding flag to parent:', data);
+          window.parent.postMessage(data, '*');
+        }
+      });
+
+      console.log('Sandbox setup complete.');
+    })();
   </script>
 </body>
 </html>
