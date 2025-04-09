@@ -5,12 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cyber Sorcerer</title>
   <style>
+    body {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
     textarea {
       width: 100%;
       height: 200px;
       resize: vertical;
       font-family: monospace;
       margin-bottom: 10px;
+      padding: 5px;
+      box-sizing: border-box;
     }
     iframe {
       width: 100%;
@@ -21,22 +29,37 @@
     button {
       padding: 8px 16px;
       cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
     }
-    body {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      font-family: Arial, sans-serif;
+    button:hover {
+      background-color: #0056b3;
+    }
+    #flag {
+      transition: all 0.5s ease;
+    }
+    .revealed {
+      color: #28a745;
+      font-weight: bold;
+      font-size: 1.2em;
+      background-color: #e6ffe6;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
     }
   </style>
 </head>
 <body>
   <h1>Welcome, Cyber Sorcerer 🧙‍♂️</h1>
-  <p>Write your markdown below and preview it securely inside the Shadow Realm.</p>
+  <p>Write your code below and preview it in the Shadow Realm.</p>
 
-  <label for="markdown" style="display: block; margin-bottom: 5px;">Input:</label>
-  <textarea id="markdown" placeholder="Enter content here..."></textarea>
-  <br>
+  <label for="markdown">Input:</label>
+  <textarea id="markdown" placeholder="Enter content here (e.g., <script>parent.postMessage('give_flag', '*')</script>)"></textarea>
   <button id="previewBtn">Preview</button>
 
   <h2>Shadow Realm (sandboxed)</h2>
@@ -45,30 +68,62 @@
   <p>⚑ FLAG: <span id="flag">...</span></p>
 
   <script>
-    // Send content to sandbox iframe
-    function previewContent() {
-      const content = document.getElementById('markdown').value;
+    (function() {
+      // DOM elements
+      const markdown = document.getElementById('markdown');
+      const previewBtn = document.getElementById('previewBtn');
       const sandbox = document.getElementById('sandbox');
-      if (sandbox.contentWindow) {
-        sandbox.contentWindow.postMessage(content, '*'); // Wildcard for CTF
-      } else {
-        console.error('Sandbox iframe not ready.');
-      }
-    }
+      const flagElement = document.getElementById('flag');
 
-    // Handle messages from sandbox
-    window.addEventListener('message', (event) => {
-      if (event.data === 'give_flag') {
-        // Updated flag
-        const flag = 'YOU_GOT_THE_JACKPOT';
-        event.source.postMessage(flag, '*'); // Wildcard for CTF
-      } else if (typeof event.data === 'string' && event.data.startsWith('YOU_')) {
-        document.getElementById('flag').textContent = event.data;
+      // Check if all elements exist
+      if (!markdown || !previewBtn || !sandbox || !flagElement) {
+        console.error('One or more DOM elements are missing.');
+        return;
       }
-    });
 
-    // Attach event listener to button
-    document.getElementById('previewBtn').addEventListener('click', previewContent);
+      // Wait for iframe to load
+      sandbox.addEventListener('load', () => {
+        console.log('Sandbox iframe loaded successfully.');
+      });
+
+      // Preview function
+      function previewContent() {
+        const content = markdown.value.trim();
+        if (!content) {
+          console.warn('No content entered.');
+          return;
+        }
+        if (sandbox.contentWindow) {
+          console.log('Sending content to sandbox:', content);
+          sandbox.contentWindow.postMessage(content, '*');
+        } else {
+          console.error('Sandbox iframe not ready. Ensure it’s served on a server.');
+          alert('Error: Sandbox not loaded. Use a local server (e.g., python -m http.server).');
+        }
+      }
+
+      // Handle messages from sandbox
+      window.addEventListener('message', (event) => {
+        const data = event.data;
+        console.log('Received message from sandbox:', data);
+
+        if (data === 'give_flag') {
+          const flag = 'YOU_GOT_THE_JACKPOT';
+          console.log('Sending flag to sandbox:', flag);
+          event.source.postMessage(flag, '*');
+        } else if (typeof data === 'string' && data === 'YOU_GOT_THE_JACKPOT') {
+          console.log('Flag received and displayed:', data);
+          flagElement.textContent = data;
+          flagElement.classList.add('revealed');
+        }
+      });
+
+      // Button click handler
+      previewBtn.addEventListener('click', previewContent);
+
+      // Log initial setup
+      console.log('Page setup complete. Enter payload and click Preview.');
+    })();
   </script>
 </body>
 </html>
