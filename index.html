@@ -1,0 +1,43 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cyber Sorcerer's Journal</title>
+  <style>
+    textarea, iframe {
+      width: 90%;
+      margin-top: 10px;
+    }
+    iframe {
+      height: 200px;
+      border: 2px solid #444;
+    }
+  </style>
+  <script>
+    window.flag = "flag{you_escaped_the_shadow_realm}";
+    window.addEventListener("message", function (event) {
+      document.getElementById("flagDisplay").innerText = "🏁 FLAG: " + event.data;
+    });
+  </script>
+</head>
+<body>
+  <h2>Welcome, Cyber Sorcerer 🧙</h2>
+  <p>Write your markdown below and preview it securely inside the Shadow Realm.</p>
+
+  <textarea id="markdown" rows="8" placeholder="Try writing some markdown or HTML..."></textarea><br>
+  <button onclick="render()">Preview</button>
+
+  <h3>Shadow Realm (sandboxed)</h3>
+  <iframe id="sandbox" sandbox="allow-scripts" src="sandbox.html"></iframe>
+
+  <p id="flagDisplay">🏁 FLAG: ...</p>
+
+  <script>
+    function render() {
+      const content = document.getElementById("markdown").value;
+      const iframe = document.getElementById("sandbox");
+      iframe.contentWindow.postMessage(content, "*");
+    }
+  </script>
+</body>
+</html>
