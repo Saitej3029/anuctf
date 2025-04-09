@@ -1,42 +1,68 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Cyber Sorcerer's Journal</title>
+  <meta charset="UTF-8">
+  <title>Shadow Realm CTF</title>
   <style>
-    textarea, iframe {
-      width: 90%;
-      margin-top: 10px;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      font-family: monospace;
     }
     iframe {
+      width: 100%;
       height: 200px;
       border: 2px solid #444;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 10px;
+    }
+    #flagDisplay {
+      font-size: 18px;
+      margin-top: 15px;
+      font-weight: bold;
     }
   </style>
-  <script>
-    window.flag = "flag{you_escaped_the_shadow_realm}";
-    window.addEventListener("message", function (event) {
-      document.getElementById("flagDisplay").innerText = "🏁 FLAG: " + event.data;
-    });
-  </script>
 </head>
 <body>
-  <h2>Welcome, Cyber Sorcerer 🧙</h2>
+  <h1>Welcome, Cyber Sorcerer 🧙‍♂️</h1>
   <p>Write your markdown below and preview it securely inside the Shadow Realm.</p>
 
-  <textarea id="markdown" rows="8" placeholder="Try writing some markdown or HTML..."></textarea><br>
+  <textarea id="input"></textarea><br>
   <button onclick="render()">Preview</button>
 
-  <h3>Shadow Realm (sandboxed)</h3>
-  <iframe id="sandbox" sandbox="allow-scripts" src="sandbox.html"></iframe>
+  <h2>Shadow Realm (sandboxed)</h2>
+  <iframe id="sandbox" src="sandbox.html" sandbox="allow-scripts"></iframe>
 
   <p id="flagDisplay">🏁 FLAG: ...</p>
 
   <script>
+    // Secret flag in parent
+    window.flag = "flag{you_escaped_the_shadow_realm}";
+
+    // Handle messages FROM iframe
+    window.addEventListener("message", function (event) {
+      if (event.data === "give_flag") {
+        // Respond with flag if requested
+        event.source.postMessage(window.flag, "*");
+      } else if (event.data.startsWith("flag{")) {
+        // Show flag if iframe returns one
+        document.getElementById("flagDisplay").textContent = "🏁 FLAG: " + event.data;
+      }
+    });
+
+    // Send HTML content to the sandboxed iframe
     function render() {
-      const content = document.getElementById("markdown").value;
+      const html = document.getElementById("input").value;
       const iframe = document.getElementById("sandbox");
-      iframe.contentWindow.postMessage(content, "*");
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      iframe.src = url;
     }
   </script>
 </body>
