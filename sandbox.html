@@ -1,0 +1,17 @@
+<!-- sandbox.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sandbox Preview</title>
+</head>
+<body>
+  <div id="output">[Your content will appear here]</div>
+
+  <script>
+    window.addEventListener("message", function(event) {
+      // UNSAFE render, vulnerable to HTML injection
+      document.getElementById("output").innerHTML = event.data;
+    });
+  </script>
+</body>
+</html>
