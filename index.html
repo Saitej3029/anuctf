@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Shadow Realm CTF</title>
+  <title>Cyber Sorcerer CTF</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -12,58 +12,52 @@
       width: 100%;
       height: 150px;
       font-family: monospace;
+      font-size: 14px;
     }
     iframe {
       width: 100%;
       height: 200px;
-      border: 2px solid #444;
+      border: 2px solid black;
       margin-top: 10px;
     }
     button {
       margin-top: 10px;
     }
-    #flagDisplay {
-      font-size: 18px;
-      margin-top: 15px;
-      font-weight: bold;
+    h1 {
+      color: #222;
     }
   </style>
 </head>
 <body>
+
   <h1>Welcome, Cyber Sorcerer 🧙‍♂️</h1>
   <p>Write your markdown below and preview it securely inside the Shadow Realm.</p>
 
-  <textarea id="input"></textarea><br>
-  <button onclick="render()">Preview</button>
+  <textarea id="markdown" placeholder="Enter your SVG/XSS payload here..."></textarea>
+  <br>
+  <button onclick="preview()">Preview</button>
 
   <h2>Shadow Realm (sandboxed)</h2>
-  <iframe id="sandbox" src="sandbox.html" sandbox="allow-scripts"></iframe>
+  <iframe id="sandbox" sandbox="allow-scripts"></iframe>
 
-  <p id="flagDisplay">🏁 FLAG: ...</p>
+  <p>🏁 FLAG: <span id="flag">...</span></p>
 
   <script>
-    // Secret flag in parent
-    window.flag = "flag{you_escaped_the_shadow_realm}";
+    const flag = "FLAG{sandbox_escape_success}";
 
-    // Handle messages FROM iframe
-    window.addEventListener("message", function (event) {
+    function preview() {
+      const markdown = document.getElementById("markdown").value;
+      const blob = new Blob([markdown], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      document.getElementById("sandbox").src = url;
+    }
+
+    window.addEventListener("message", (event) => {
       if (event.data === "give_flag") {
-        // Respond with flag if requested
-        event.source.postMessage(window.flag, "*");
-      } else if (event.data.startsWith("flag{")) {
-        // Show flag if iframe returns one
-        document.getElementById("flagDisplay").textContent = "🏁 FLAG: " + event.data;
+        document.getElementById("flag").textContent = flag;
       }
     });
-
-    // Send HTML content to the sandboxed iframe
-    function render() {
-      const html = document.getElementById("input").value;
-      const iframe = document.getElementById("sandbox");
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      iframe.src = url;
-    }
   </script>
+
 </body>
 </html>
